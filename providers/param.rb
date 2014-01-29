@@ -11,14 +11,22 @@ action :apply do
   end
   unless location[key_path.last] == new_resource.value
     location[key_path.last] = new_resource.value
-    execute "sysctl[#{new_resource.key}]" do
-      command "sysctl -w \"#{new_resource.key}=#{new_resource.value}\""
-      not_if do
-        cparam = Mixlib::ShellOut.new("sysctl -n #{new_resource.key}").run_command
-        cparam.stdout.strip == new_resource.value.to_s
+    if ::File.exists?("/proc/sys/#{new_resource.key}")
+      STDOUT.puts "file exists: /proc/sys/#{new_resource.key}"
+      execute "sysctl[#{new_resource.key}]" do
+        command "sysctl -w \"#{new_resource.key}=#{new_resource.value}\""
+        not_if do
+          cparam = Mixlib::ShellOut.new("sysctl -n #{new_resource.key}").run_command
+          cparam.stdout.strip == new_resource.value.to_s
+        end
+      end
+      node.default['sysctl']['params'] = sys_attrs
+    else
+      STDOUT.puts "file doesn't exist: /proc/sys/#{new_resource.key}"
+      log "unknown sysctl key: #{new_resource.key}" do
+        level :warn
       end
     end
-    node.default['sysctl']['params'] = sys_attrs
     new_resource.updated_by_last_action(true)
   end
 end

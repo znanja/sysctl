@@ -4,10 +4,6 @@ site :opscode
 metadata
 
 group :test do
-  cookbook "apt"
-  cookbook "yum"
-  cookbook "minitest-handler"
-
   cookbook "sysctl_test", :path => "./test/kitchen/cookbooks/sysctl_test"
   # https://github.com/opscode/test-kitchen/issues/28
 #  require 'pathname'
