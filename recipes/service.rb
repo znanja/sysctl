@@ -37,6 +37,7 @@ service 'procps' do
       provider Chef::Provider::Service::Upstart
     end
     if node['platform_version'].to_f >= 15.04
+      service_name 'systemd-sysctl'
       provider Chef::Provider::Service::Systemd
     end
   end
